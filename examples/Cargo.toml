@@ -87,3 +87,7 @@ name = "5_alias_output_history"
 [[example]]
 path = "1_advanced/6_custom_resolution.rs"
 name = "6_custom_resolution"
+
+[[example]]
+path = "2_tests/0_did_testing.rs"
+name = "0_did_testing"
