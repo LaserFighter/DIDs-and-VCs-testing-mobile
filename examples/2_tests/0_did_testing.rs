@@ -51,22 +51,22 @@ async fn main() -> anyhow::Result<()> {
 	  create_did(&client, &mut secret_manager_issuer).await?;
 	
 	// Create an identity for the holder, in this case also the subject.
-	let mut secret_manager_athan: SecretManager = 
+	let mut secret_manager_alice: SecretManager = 
 	SecretManager::Stronghold(
 	  StrongholdSecretManager::builder()
 		.password("secure_password_2")
 		.build(random_stronghold_path())?,
 	);
-	let(_, athan_document, key_pair_athan): (Address, IotaDocument, KeyPair) =
-	  create_did(&client, &mut secret_manager_athan).await?;
+	let(_, alice_document, key_pair_alice): (Address, IotaDocument, KeyPair) =
+	  create_did(&client, &mut secret_manager_alice).await?;
 	
 	
 	// Step 2: Make some verifiable Credentials to test
 
-	// Create a credential subject indicating the degree earned by Athan.
+	// Create a credential subject indicating the degree earned by Alice.
 	let subject: Subject = Subject::from_json_value(json!({
-		"id": athan_document.id().as_str(),
-		"name": "Athan",
+		"id": alice_document.id().as_str(),
+		"name": "Alice",
 		"degree": {
 			"type": "BachelorDegree",
 			"name": "Computer Science",
@@ -76,7 +76,7 @@ async fn main() -> anyhow::Result<()> {
 
 	// Build the credential using subject above and issuer.
 	let mut credential: Credential = CredentialBuilder::default()
-	  .id(Url::parse("https://uky.edu/adjo256")?)
+	  .id(Url::parse("https://example.edu/alice12345")?)
 	  .issuer(Url::parse(issuer_document.id().as_str())?)
 	  .type_("UniversityDegreeCredential")
 	  .subject(subject)
@@ -129,15 +129,15 @@ async fn main() -> anyhow::Result<()> {
 
 	// Create an unsigned Presentation from the previously issued Verifiable Credential.
 	let mut presentation: Presentation = PresentationBuilder::default()
-	  .holder(Url::parse(athan_document.id().as_ref())?)
+	  .holder(Url::parse(alice_document.id().as_ref())?)
 	  .credential(credential)
 	  .build()?;
 	
 	// Sign the verifiable presentation using the holder's verification method
 	// and include the requested challenge and expiry timestamp.
-	athan_document.sign_data(
+	alice_document.sign_data(
 		&mut presentation,
-		key_pair_athan.private(),
+		key_pair_alice.private(),
 		"#key-1",
 		ProofOptions::new().challenge(challenge.to_string()).expires(expires),
 	)?;
